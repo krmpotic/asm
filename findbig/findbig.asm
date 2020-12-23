@@ -10,6 +10,8 @@ _start:
 	xor r14, r14;max
 	add rsp, 8
 	dec r15
+	cmp r15, 0
+	je error
   loopx:
 	pop r11
 	dec r15
