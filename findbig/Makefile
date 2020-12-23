@@ -3,3 +3,8 @@ findbig: findbig.o
 
 findbig.o: findbig.asm
 	nasm -f elf64 -o findbig.o findbig.asm
+
+debug:
+	gdb findbig -ex "b _start" -ex "layout asm" -ex "layout reg" -ex "run"
+
+.PHONY: debug
