@@ -4,7 +4,8 @@ section .data
 	SYS_WRITE equ 1
 	SYS_EXIT  equ 60
 	ASCII_ZERO  equ 0x30
-	ASCII_SPACE  equ 0x20
+	ASCII_SPACE equ 0x20
+	ASCII_NL    equ 0xa
 
 section .text
 	global _start
@@ -13,7 +14,6 @@ _start:
   b:
 	cmp r12, LIMIT
 	je exit
-
 	mov rcx, 2
   c:
 	cmp rcx, r12
@@ -28,7 +28,6 @@ _start:
 
 	inc rcx
 	jmp c
-
   back:
 	inc r12
 	jmp b
@@ -47,22 +46,31 @@ print_rax_bx: ; print int in rax, and character in bx
 	xor rdx, rdx
 	div rbx
 	add dl, ASCII_ZERO
-	push dx
+	push dx ;; can't we push a single byte?
 	add rcx, 2
 	cmp rax, 0
 	jne _pr_0
+
+	; write(fd, buf, count)
 	mov rax, SYS_WRITE
 	mov rdi, STDOUT
 	mov rsi, rsp
 	mov rdx, rcx
 	syscall
+
 	jmp back
 
 exit:
+	mov ax, ASCII_NL
+	push ax
+	; write(fd, buf, count)
+	mov rax, SYS_WRITE
+	mov rdi, STDOUT
+	mov rsi, rsp
+	mov rdx, 1
+	syscall
+
+	; exit(status)
 	mov rax, SYS_EXIT
 	mov rdi, 0
-	syscall
-error:
-	mov rax, SYS_EXIT
-	mov rdi, 1
 	syscall
